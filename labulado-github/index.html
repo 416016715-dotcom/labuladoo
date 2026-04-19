@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>拉不拉多</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont; margin: 0; background:#f5f5f5;}
+    .container { max-width:480px; margin:auto; padding:16px;}
+    .card { background:white; border-radius:16px; padding:16px; margin-bottom:12px;}
+    button { padding:12px; border:none; border-radius:12px; background:black; color:white;}
+    input, select, textarea { width:100%; padding:8px; margin-top:4px; border-radius:8px; border:1px solid #ccc;}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h2>拉不拉多 🐶</h2>
+    <p id="status">今天还没拉</p>
+    <button onclick="quick()">今天拉了</button>
+  </div>
+
+  <div class="card">
+    <h3>新增记录</h3>
+    <input type="date" id="date"/>
+    <input type="time" id="time"/>
+    <input type="number" id="count" value="1"/>
+    <select id="shape">
+      <option>正常</option><option>偏干</option><option>偏稀</option><option>水样</option>
+    </select>
+    <textarea id="note" placeholder="备注"></textarea>
+    <button onclick="save()">保存</button>
+  </div>
+
+  <div class="card">
+    <h3>记录</h3>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script>
+const key = "labulado_data";
+let data = JSON.parse(localStorage.getItem(key) || "[]");
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function render() {
+  document.getElementById("status").innerText =
+    data.some(d=>d.date===today()) ? "今天拉过了 👍" : "今天还没拉";
+
+  const list = document.getElementById("list");
+  list.innerHTML = data.map(d=>`
+    <div style="border-bottom:1px solid #eee;padding:8px 0">
+      ${d.date} ${d.time} - ${d.shape} (${d.count})
+    </div>
+  `).join("");
+}
+
+function save() {
+  const item = {
+    date: document.getElementById("date").value || today(),
+    time: document.getElementById("time").value,
+    count: document.getElementById("count").value,
+    shape: document.getElementById("shape").value,
+    note: document.getElementById("note").value
+  };
+  data.unshift(item);
+  localStorage.setItem(key, JSON.stringify(data));
+  render();
+}
+
+function quick(){
+  document.getElementById("date").value = today();
+}
+
+render();
+</script>
+</body>
+</html>
